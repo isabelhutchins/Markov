@@ -13,9 +13,9 @@ public class MarkovDriver {
 	
 		double start = System.nanoTime();
 		for(int k=1; k <= 5; k++) {
-			MarkovInterface<String> markov = new BruteMarkov(k);
+			MarkovInterface<String> markov = new EfficientMarkov(k);
 			markov.setTraining(text);
-			String random = markov.getRandomText(200);
+			String random = markov.getRandomText(600);
 			System.out.printf("%d markov model with %d chars\n", k,random.length());
 			printNicely(random,60);
 		}

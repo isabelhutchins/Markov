@@ -65,5 +65,45 @@ public class WordGramTester {
 		assertEquals("fail super",a.compareTo(a2) > 0, true);
 		assertEquals("fail empty",b2.compareTo(a2) < 0, true);
 	}
+	
+	@Test
+	public void testToString(){
+	String[] words = {"crown", "rats", "fox", "d", " ", "computer", "", "tacos", "kakkasdka"};
+		WordGram one = new WordGram(words, 2, 3); //fox, d, (space)
+		WordGram two = new WordGram(words, 0, 4); // crown, rats, fox, d, (space)
+		WordGram three = new WordGram(words, 5, 1); //computer
+		WordGram four = new WordGram(words, 6, 3); // (nothing), tacos, kakkasdka
+		
+		//to help user realize they left out the end bracket
+		assertEquals("words, 2, 3", one.toString().equals("{fox,d, "), false);
+		//to help user realize they added a comma to the end of the last string
+		assertEquals("words, 0, 4", two.toString().equals("{crown,rats,fox,d,}"), false);
+		assertEquals("words, 5, 1", three.toString().equals("{computer}"), true);
+		assertEquals("words, 6, 3", four.toString().equals("{,tacos,kakkasdka}"), true);
+	}
+	
+	
+	
+	@Test
+	public void testShiftAdd(){
+		String [] array = {"tomorrow", "i", "am", "", "going", "to", "be", "happy!"};
+		String [] lastWords = {"ending", "HELLO", " ", "happy."};
+		
+		WordGram one = new WordGram(array, 2, 5);
+		WordGram two = new WordGram(array, 0, 1);
+		WordGram three = new WordGram(array, 1, 0);
+		WordGram four = new WordGram(array, 1, 7);
+		
+		one = one.shiftAdd(lastWords[0]);
+		two = two.shiftAdd(lastWords[1]);
+		three = three.shiftAdd(lastWords[2]);
+		four = four.shiftAdd(lastWords[3]);
+		
+		assertEquals("Gram: words, 2, 5. Last index: 0", one.toString().equals("{,going,to,be,ending}"), true);
+		assertEquals("Gram: words, 0, 1. Last index: 1", two.toString().equals("{HELLO}"), true);
+		assertEquals("Gram: words, 1, 0. Last index: 2", three.toString().equals("{}"), true);
+		assertEquals("Gram: words, 1, 7. Last index: 3", four.toString().equals("{am,,going,to,be,happy!,happy.}"), true);
+		
+	}
 
 }

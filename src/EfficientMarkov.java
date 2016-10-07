@@ -1,35 +1,60 @@
-import java.util.ArrayList;
-
 import java.util.Random;
 
-public class BruteMarkov implements MarkovInterface<String> {
+import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class EfficientMarkov implements MarkovInterface<String> {
 	private String myText;
 	private Random myRandom;
 	private int myOrder;
+	private Map<String, ArrayList<String>> kgrams;
 	
 	private static String PSEUDO_EOS = "";
 	private static int RANDOM_SEED = 1234;
 	
-	public BruteMarkov(int order) {
+	public EfficientMarkov(int order) {
 		myRandom = new Random(RANDOM_SEED);
-		myOrder = order;
+		myOrder = order; 
 	}
 	
-	public BruteMarkov() {
+	public EfficientMarkov() {
 		this(3);
 	}
-	
+
+	@Override
 	public void setTraining(String text) {
 		myText = text;
+		kgrams = new HashMap<>();
+		String sub;
+		
+		for (int i=0; i<=myText.length()-myOrder;i++){
+			sub = myText.substring(i, i+myOrder);
+			if (kgrams.containsKey(sub)){
+				if (i+myOrder>=myText.length()){
+					kgrams.get(sub).add(PSEUDO_EOS);
+					break;
+				}
+				kgrams.get(sub).add(String.valueOf(myText.charAt(i+myOrder)));
+			}else{
+				kgrams.put(sub, new ArrayList<String>());
+				if (i+myOrder>=myText.length()){
+					kgrams.get(sub).add(PSEUDO_EOS);
+					break;
+				}
+				kgrams.get(sub).add(String.valueOf(myText.charAt(i+myOrder)));
+			}
+		}
 	}
-	public int size() {
-		return myText.length();
-	}
-	
+
+	@Override
 	public String getRandomText(int length) {
 		StringBuilder sb = new StringBuilder();
 		int index = myRandom.nextInt(myText.length() - myOrder);
-
+		
 		String current = myText.substring(index, index + myOrder);
 		//System.out.printf("first random %d for '%s'\n",index,current);
 		sb.append(current);
@@ -50,33 +75,20 @@ public class BruteMarkov implements MarkovInterface<String> {
 		}
 		return sb.toString();
 	}
-	
-	public ArrayList<String> getFollows(String key){
-		ArrayList<String> follows = new ArrayList<String>();
-		
-		int pos = 0;  // location where search for key in text starts
-		
-		while (pos < myText.length()){
-			int start = myText.indexOf(key,pos);
-			if (start == -1){
-				//System.out.println("didn't find "+key);
-				break;
-			}
-			if (start + key.length() >= myText.length()){
-				//System.out.println("found end with "+key);
-				follows.add(PSEUDO_EOS); 
-				break;
-			}
-			// next line is string equivalent of myText.charAt(start+key.length())
-			String next = myText.substring(start+key.length(), start+key.length()+1);
-			follows.add(next);
-			pos = start+1;  // search continues after this occurrence
-		}
-		return follows;
+
+	@Override
+	public ArrayList<String> getFollows(String key) {
+		return kgrams.get(key);	
 	}
 
 	@Override
 	public int getOrder() {
 		return myOrder;
 	}
+	
+	
+	
+	
+	
+	
 }
